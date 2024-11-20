@@ -5,10 +5,9 @@ import (
 	"database/sql"
 
 	"github.com/acronix0/song-libary-api/internal/dto"
-	def "github.com/acronix0/song-libary-api/internal/repository"
 )
 
-var _ def.Song = (*SongRepo)(nil) //:Song
+
 
 type SongRepo struct {
 	db *sql.DB
@@ -18,13 +17,13 @@ func NewSongRepository(db *sql.DB) *SongRepo {
   return &SongRepo{db: db}
 }
  
-func (r *SongRepo) Create(ctx context.Context, groupName, songName string) (error, int){
+func (r *SongRepo) Create(ctx context.Context, groupName, songName string) (int, error){
 	query := "INSERT INTO songs (group_name, song_name) VALUES ($1, $2)"
   _, err := r.db.ExecContext(ctx, query, groupName, songName)
   if err!= nil {
-    return err, 1
+    return 1, err
   }
-  return nil,1
+  return 1, nil
 }
 
 func (r *SongRepo) Get(ctx context.Context, skip, take int) ([]dto.SongDTO, error) {

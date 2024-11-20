@@ -13,7 +13,7 @@ type ServiceManager interface {
 
 type Library interface{
 	GetSongs(ctx context.Context, skip, take int) ([]dto.SongDTO, error)
-	CreateSong(ctx context.Context, groupName, songName string) (error)
+	CreateSong(ctx context.Context, groupName, songName string) (int, error)
 	Update(ctx context.Context, song dto.SongDTO) (error)
 	Delete(ctx context.Context, songID int) (error)
 }
