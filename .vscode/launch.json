@@ -9,10 +9,7 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}/cmd/auth",
-      "env": {
-        "CONFIG_PATH": "${workspaceFolder}/config/local.yaml"
-      },
+      "program": "${workspaceFolder}/cmd/app",
       "buildFlags": ""
     }
   ]

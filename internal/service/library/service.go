@@ -17,10 +17,13 @@ func NewService(
 	repoManager repository.RepositoryManager,
 ) *services {
 	return &services{
-		LibraryService: NewLibraryService(repoManager.Song()),
+		LibraryService: NewLibraryService(
+			repoManager.Song(), 
+			repoManager.Lyrics(),
+		),
 	}
 }
-func (s *services) Repo() repository.Song
+
 func (s *services) Library() service.Library {
 	return s.LibraryService
 }

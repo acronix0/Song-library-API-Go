@@ -1,0 +1,214 @@
+basePath: /api/v1
+definitions:
+  github_com_acronix0_song-libary-api_internal_dto.SongDTO:
+    properties:
+      created_at:
+        type: string
+      group:
+        type: string
+      link:
+        type: string
+      lyrics:
+        type: string
+      release_date:
+        type: string
+      song:
+        type: string
+      song_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  internal_delivery_http_v1.Response:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8082
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://example.com/support
+  description: API for managing songs and their texts.
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  termsOfService: http://example.com/terms/
+  title: Song Library API
+  version: "1.0"
+paths:
+  /songs:
+    delete:
+      description: Delete a song by its ID.
+      parameters:
+      - description: ID of the song to delete
+        in: query
+        name: song_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Song deleted successfully
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "400":
+          description: Invalid song_id parameter
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "404":
+          description: Song not found
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+      summary: Delete Song
+      tags:
+      - Songs
+    get:
+      description: Get a paginated list of songs.
+      parameters:
+      - default: 0
+        description: Number of records to skip
+        in: query
+        name: skip
+        required: true
+        type: integer
+      - default: 10
+        description: Number of records to fetch
+        in: query
+        name: take
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO'
+            type: array
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+      summary: Get Songs
+      tags:
+      - Songs
+    post:
+      consumes:
+      - application/json
+      description: Add a new song to the library.
+      parameters:
+      - description: Song object
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+      summary: Add Song
+      tags:
+      - Songs
+  /songs/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing song
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated song data
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+      summary: Update song
+      tags:
+      - songs
+  /songs/text:
+    get:
+      description: Get the text of a song by its ID.
+      parameters:
+      - description: ID of the song
+        in: query
+        name: song_id
+        required: true
+        type: integer
+      - default: 0
+        description: Number of verses to skip
+        in: query
+        name: skip
+        required: true
+        type: integer
+      - default: 10
+        description: Number of verses to fetch
+        in: query
+        name: take
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: string
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "404":
+          description: Song text not found
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_delivery_http_v1.Response'
+      summary: Get Song Text
+      tags:
+      - Songs
+swagger: "2.0"

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/acronix0/song-libary-api/internal/dto"
-	"github.com/acronix0/song-libary-api/internal/repository/liryc"
+	"github.com/acronix0/song-libary-api/internal/repository/lyrics"
 	"github.com/acronix0/song-libary-api/internal/repository/song"
 )
 
@@ -14,12 +14,12 @@ import (
 
 
 type Song interface{
-	Create(ctx context.Context, groupName, songName string) (int, error)
+	Create(ctx context.Context, song dto.SongDTO) (int, error)
 	Get(ctx context.Context, skip, take int) ([]dto.SongDTO, error)
-	Update(ctx context.Context,song dto.SongDTO) (error)
+	Update(ctx context.Context,song dto.SongDTO) (dto.SongDTO,error)
 	Delete(ctx context.Context, songID int) (error)
 }
-type Liryc interface{
+type Lyrics interface{
 	Create(ctx context.Context, songId int, text string) (error)
 	Get(ctx context.Context,songId, skip, take int) (string, error)
 	Update(ctx context.Context, songId int, text string) (error)
@@ -27,18 +27,18 @@ type Liryc interface{
 }
 type RepositoryManager interface {
 	Song() Song
-	Liryc() Liryc
+	Lyrics() Lyrics
 }
 
 
 var _ Song = (*song.SongRepo)(nil) 
-//var _ Liryc = (*lir)
+var _ Lyrics = (*lyrics.LyricsRepo)(nil)
 
 
 type repositories struct {
 	db *sql.DB
 	song Song
-	liryc Liryc
+	lyrics Lyrics
 }
 
 func NewRepositoryManager(db *sql.DB) *repositories {
@@ -54,9 +54,9 @@ func (r *repositories)Song() Song{
 	return r.song
 }
 
-func (r *repositories) Liryc() Liryc{
-	if r.liryc == nil {
-    r.liryc = liryc.NewLyricsRepository(r.DB())
+func (r *repositories) Lyrics() Lyrics{
+	if r.lyrics == nil {
+    r.lyrics = lyrics.NewLyricsRepository(r.DB())
   }
-  return r.liryc
+  return r.lyrics
 }
