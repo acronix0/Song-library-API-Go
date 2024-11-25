@@ -2,6 +2,7 @@ package lyrics
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 )
 
@@ -22,7 +23,7 @@ func (r *LyricsRepo) Delete(ctx context.Context, songID int) error {
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("no lyrics found for song ID %d", songID)
+		return sql.ErrNoRows
 	}
 
 	return nil

@@ -14,8 +14,8 @@ import (
 // @Description Add a new song to the library.
 // @Accept json
 // @Produce json
-// @Param song body dto.SongDTO true "Song object"
-// @Success 201 {object} dto.SongDTO
+// @Param song body dto.CreateSongDTO true "Song object"
+// @Success 201 {object} dto.CreateSongDTO
 // @Failure 400 {object} Response "Invalid input data"
 // @Failure 500 {object} Response "Internal server error"
 // @Router /songs [post]
@@ -25,7 +25,7 @@ func (h *Handler) createSong(c *gin.Context) {
 		slog.String("op", op),
 	)
 
-	var songDTO dto.SongDTO
+	var songDTO dto.CreateSongDTO
 	if err := c.ShouldBindJSON(&songDTO); err != nil {
 		newResponse(c, http.StatusBadRequest, "Invalid input data")
 		logger.Error("Invalid input data", slog.String("error", err.Error()))
@@ -40,5 +40,6 @@ func (h *Handler) createSong(c *gin.Context) {
 	}
 
 	songDTO.SongID = songID
+	logger.Debug("Song added successfully")
 	c.JSON(http.StatusCreated, songDTO)
 }

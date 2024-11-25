@@ -27,11 +27,10 @@ func NewDatabase(port int, host, userName, password, dbName string) (*Database, 
 		return &Database{db: db}, nil
 	}
 
-	err = createDatabase(port , host, userName, password, dbName )
-		if err != nil {
+	err = createDatabase(port, host, userName, password, dbName)
+	if err != nil {
 		return nil, fmt.Errorf("%s: failed to create: %w", op, err)
 	}
-
 
 	db, err = sql.Open("postgres", conStr)
 	if err != nil {
@@ -45,8 +44,8 @@ func NewDatabase(port int, host, userName, password, dbName string) (*Database, 
 	return &Database{db: db}, nil
 }
 
-func createDatabase(port int, host, userName, password, dbName string)  error{
-const op = "database.createDatabase"
+func createDatabase(port int, host, userName, password, dbName string) error {
+	const op = "database.createDatabase"
 	serverConStr := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s sslmode=disable",
 		host, port, userName, password,

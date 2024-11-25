@@ -21,7 +21,6 @@ func InitMigrations(
 	port int,
 ) error {
 
-
 	serverConStr := fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s sslmode=disable",
 		host, port, userName, password,
@@ -31,7 +30,7 @@ func InitMigrations(
 	if err != nil {
 		return fmt.Errorf("failed to ensure database exists: %w", err)
 	}
-encodedPassword := url.QueryEscape(password)
+	encodedPassword := url.QueryEscape(password)
 	dbURL := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		userName,
@@ -67,7 +66,6 @@ func resolvePath(migrationsPath string) (string, error) {
 
 	return "file://" + normalizedPath + "/", nil
 }
-
 
 func ensureDatabaseExists(serverConStr, dbName string) error {
 	serverDB, err := sql.Open("postgres", serverConStr)

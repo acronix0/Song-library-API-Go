@@ -10,11 +10,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "termsOfService": "http://example.com/terms/",
-        "contact": {
-            "name": "API Support",
-            "url": "http://example.com/support",
-            "email": "support@example.com"
-        },
+        "contact": {},
         "license": {
             "name": "MIT",
             "url": "http://opensource.org/licenses/MIT"
@@ -58,7 +54,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO"
+                                "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.ResponseSongDTO"
                             }
                         }
                     },
@@ -95,7 +91,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO"
+                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.CreateSongDTO"
                         }
                     }
                 ],
@@ -103,56 +99,11 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO"
+                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.CreateSongDTO"
                         }
                     },
                     "400": {
                         "description": "Invalid input data",
-                        "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a song by its ID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Songs"
-                ],
-                "summary": "Delete Song",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID of the song to delete",
-                        "name": "song_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Song deleted successfully",
-                        "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid song_id parameter",
-                        "schema": {
-                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "Song not found",
                         "schema": {
                             "$ref": "#/definitions/internal_delivery_http_v1.Response"
                         }
@@ -239,7 +190,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "songs"
+                    "Songs"
                 ],
                 "summary": "Update song",
                 "parameters": [
@@ -256,7 +207,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO"
+                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.UpdateSongDTO"
                         }
                     }
                 ],
@@ -264,7 +215,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.SongDTO"
+                            "$ref": "#/definitions/github_com_acronix0_song-libary-api_internal_dto.ResponseSongDTO"
                         }
                     },
                     "400": {
@@ -280,11 +231,123 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a song by its ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Songs"
+                ],
+                "summary": "Delete Song",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the song to delete",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Song deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid song_id parameter",
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Song not found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_delivery_http_v1.Response"
+                        }
+                    }
+                }
             }
         }
     },
     "definitions": {
-        "github_com_acronix0_song-libary-api_internal_dto.SongDTO": {
+        "github_com_acronix0_song-libary-api_internal_dto.CreateSongDTO": {
+            "type": "object",
+            "required": [
+                "group",
+                "song"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "lyrics": {
+                    "type": "string"
+                },
+                "release_date": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "song_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_acronix0_song-libary-api_internal_dto.ResponseSongDTO": {
+            "type": "object",
+            "required": [
+                "group",
+                "song",
+                "song_id"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "lyrics": {
+                    "type": "string"
+                },
+                "release_date": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "song_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_acronix0_song-libary-api_internal_dto.UpdateSongDTO": {
             "type": "object",
             "properties": {
                 "created_at": {

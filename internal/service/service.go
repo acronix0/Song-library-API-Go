@@ -10,12 +10,10 @@ type ServiceManager interface {
 	Library() Library
 }
 
-
-type Library interface{
-	GetSongs(ctx context.Context, skip, take int) ([]dto.SongDTO, error)
-	CreateSong(ctx context.Context,  song dto.SongDTO) (int, error)
+type Library interface {
+	GetSongs(ctx context.Context, skip, take int) ([]dto.ResponseSongDTO, error)
+	CreateSong(ctx context.Context, song dto.CreateSongDTO) (int, error)
 	GetSongText(ctx context.Context, songId, skip, take int) (string, error)
-	Update(ctx context.Context, song dto.SongDTO) (dto.SongDTO, error)
-	Delete(ctx context.Context, songID int) (error)
+	Update(ctx context.Context, song dto.UpdateSongDTO) (dto.ResponseSongDTO, error)
+	Delete(ctx context.Context, songID int) error
 }
-

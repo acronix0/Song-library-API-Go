@@ -18,12 +18,12 @@ import (
 
 type App struct {
 	serviceProvider *serviceProvider
-	logger             *slog.Logger
-	config *config.Config
+	logger          *slog.Logger
+	config          *config.Config
 }
 
 func NewApp(ctx context.Context) (*App, error) {
-  a := &App{}
+	a := &App{}
 	err := a.initDeps(ctx)
 	if err != nil {
 		return nil, err
@@ -31,14 +31,11 @@ func NewApp(ctx context.Context) (*App, error) {
 
 	return a, nil
 }
+
 // @title Song Library API
 // @version 1.0
 // @description API for managing songs and their texts.
 // @termsOfService http://example.com/terms/
-
-// @contact.name API Support
-// @contact.url http://example.com/support
-// @contact.email support@example.com
 
 // @license.name MIT
 // @license.url http://opensource.org/licenses/MIT
@@ -48,7 +45,7 @@ func NewApp(ctx context.Context) (*App, error) {
 func (a *App) Run() {
 	handlers := delivery.NewHandler(a.serviceProvider.ServiceManager(), a.logger)
 	srv := server.NewServer(a.config, handlers.Init(a.config))
-		go func() {
+	go func() {
 		if err := srv.Run(); !errors.Is(err, http.ErrServerClosed) {
 			a.logger.Error("error occurred while running http server: %s\n", err.Error())
 		}
@@ -90,15 +87,15 @@ func (a *App) initDeps(ctx context.Context) error {
 
 func (a *App) initConfig(_ context.Context) error {
 	cfg, err := config.Load()
-	if err != nil { 
+	if err != nil {
 		a.logger.Error(err.Error())
 	}
-	
+
 	a.config = cfg
 	return nil
 }
 
-func (a *App)initLogger(_ context.Context) error {
+func (a *App) initLogger(_ context.Context) error {
 	var log *slog.Logger
 	switch a.config.AppEnv {
 	case config.EnvLocal:
@@ -110,16 +107,16 @@ func (a *App)initLogger(_ context.Context) error {
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
 		)
 	}
-	 a.logger = log
-	 return nil
+	a.logger = log
+	return nil
 }
 func (a *App) InitMigrations(_ context.Context) error {
 	return database.InitMigrations(
-		a.config.MigrationsPath, 
-		a.config.DatabaseConndection.Host, 
-		a.config.DatabaseConndection.User, 
-		a.config.DatabaseConndection.Name, 
-		a.config.DatabaseConndection.Password, 
+		a.config.MigrationsPath,
+		a.config.DatabaseConndection.Host,
+		a.config.DatabaseConndection.User,
+		a.config.DatabaseConndection.Name,
+		a.config.DatabaseConndection.Password,
 		a.config.DatabaseConndection.Port,
 	)
 }

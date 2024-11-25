@@ -10,10 +10,11 @@ import (
 type Server struct {
 	httpServer *http.Server
 }
+
 func NewServer(cfg *config.Config, handler http.Handler) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:           cfg.HTTPConfig.Host +":"+ cfg.HTTPConfig.Port,
+			Addr:           cfg.HTTPConfig.Host + ":" + cfg.HTTPConfig.Port,
 			Handler:        handler,
 			ReadTimeout:    cfg.HTTPConfig.ReadTimeout,
 			WriteTimeout:   cfg.HTTPConfig.WriteTimeout,
@@ -21,7 +22,6 @@ func NewServer(cfg *config.Config, handler http.Handler) *Server {
 		},
 	}
 }
-
 
 func (s *Server) Run() error {
 	return s.httpServer.ListenAndServe()

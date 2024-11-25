@@ -6,67 +6,79 @@ import (
 
 	"github.com/acronix0/song-libary-api/internal/config"
 	"github.com/acronix0/song-libary-api/internal/database"
+	externalapi "github.com/acronix0/song-libary-api/internal/external_api"
+	songdetailapi "github.com/acronix0/song-libary-api/internal/external_api/song_detail_api"
 	"github.com/acronix0/song-libary-api/internal/repository"
 	"github.com/acronix0/song-libary-api/internal/service"
 	"github.com/acronix0/song-libary-api/internal/service/library"
 )
 
 type serviceProvider struct {
-	config   *config.Config
-	dataBase *database.Database
-	logger    *slog.Logger
-	serviceManager service.ServiceManager
+	config            *config.Config
+	dataBase          *database.Database
+	logger            *slog.Logger
+	serviceManager    service.ServiceManager
 	repositoryManager repository.RepositoryManager
+	externalapi       externalapi.ExternalAPIClient
 }
+
 func newServiceProvider(cfg *config.Config, logger *slog.Logger) *serviceProvider {
 	return &serviceProvider{config: cfg, logger: logger}
 }
 
-func (s *serviceProvider) Config() *config.Config{
+func (s *serviceProvider) Config() *config.Config {
 	if s.config == nil {
-    config, err := config.Load() 
-		if err!= nil {
-      panic(err)
-    }
+		config, err := config.Load()
+		if err != nil {
+			panic(err)
+		}
 		s.config = config
 	}
 	return s.config
 }
-func (s *serviceProvider) Database() *database.Database{
+func (s *serviceProvider) Database() *database.Database {
 	if s.dataBase == nil {
 		cfg := s.Config()
 		db, err := database.NewDatabase(
-			cfg.DatabaseConndection.Port, 
-			cfg.DatabaseConndection.Host, 
-			cfg.DatabaseConndection.User, 
-			cfg.DatabaseConndection.Password, 
+			cfg.DatabaseConndection.Port,
+			cfg.DatabaseConndection.Host,
+			cfg.DatabaseConndection.User,
+			cfg.DatabaseConndection.Password,
 			cfg.DatabaseConndection.Name)
-  	if err!= nil {
-    	panic(err)
-  	}
+		if err != nil {
+			panic(err)
+		}
 		s.dataBase = db
 	}
 
 	return s.dataBase
 }
-func (s *serviceProvider) Logger() *slog.Logger{
+func (s *serviceProvider) Logger() *slog.Logger {
 	if s.logger == nil {
-    s.logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-  }
-  return s.logger
+		s.logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	}
+	return s.logger
 }
 func (s *serviceProvider) ServiceManager() service.ServiceManager {
 	if s.serviceManager == nil {
-		s.serviceManager = library.NewService(s.RepositoryManager())
-	
+		s.serviceManager = library.NewService(s.RepositoryManager(), s.ExternalAPIClient())
+
 	}
 
 	return s.serviceManager
 }
 
-func (s *serviceProvider) RepositoryManager() repository.RepositoryManager{
+func (s *serviceProvider) RepositoryManager() repository.RepositoryManager {
 	if s.repositoryManager == nil {
-    s.repositoryManager = repository.NewRepositoryManager(s.Database().GetDB())
-  }
-  return s.repositoryManager
+		s.repositoryManager = repository.NewRepositoryManager(s.Database().GetDB())
+	}
+	return s.repositoryManager
+}
+
+func (s *serviceProvider) ExternalAPIClient() externalapi.ExternalAPIClient {
+
+	if s.externalapi == nil {
+		s.externalapi = songdetailapi.NewAPIClient(s.Config().ExternalAPIBaseURL)
+	}
+	return s.externalapi
 }

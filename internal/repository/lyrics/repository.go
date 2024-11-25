@@ -9,5 +9,5 @@ type LyricsRepo struct {
 }
 
 func NewLyricsRepository(db *sql.DB) *LyricsRepo {
-  return &LyricsRepo{db: db}
+	return &LyricsRepo{db: db}
 }

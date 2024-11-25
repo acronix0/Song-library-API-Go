@@ -10,8 +10,7 @@ CREATE TABLE songs (
     title VARCHAR(255) NOT NULL,
     group_id INT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     link VARCHAR(500),
-    release_date DATE,
-    text TEXT,
+    release_date TIMESTAMP DEFAULT NOW(),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

@@ -2,7 +2,6 @@ package v1
 
 import "github.com/gin-gonic/gin"
 
-
 type Response struct {
 	Message string `json:"message"`
 }

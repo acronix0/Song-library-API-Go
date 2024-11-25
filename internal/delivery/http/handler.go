@@ -15,14 +15,14 @@ import (
 )
 
 type Handler struct {
-	services     service.ServiceManager
-	logger *slog.Logger
+	services service.ServiceManager
+	logger   *slog.Logger
 }
 
 func NewHandler(service service.ServiceManager, logger *slog.Logger) *Handler {
 	return &Handler{
-		services: service, 
-		logger: logger,
+		services: service,
+		logger:   logger,
 	}
 }
 
@@ -39,8 +39,8 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 	if cfg.AppEnv != config.EnvLocal {
 		docs.SwaggerInfo.Host = cfg.HTTPConfig.Host
 	}
- 
- 	if cfg.AppEnv != config.EnvProd {
+
+	if cfg.AppEnv != config.EnvProd {
 		router.GET("/swagger/v1/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
@@ -54,7 +54,7 @@ func (h *Handler) Init(cfg *config.Config) *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine) {
-	handlerV1 := v1.NewHandler(h.services, h.logger)
+	handlerV1 := v1.NewV1Handler(h.services, h.logger)
 	api := router.Group("/api")
 	{
 		handlerV1.Init(api)

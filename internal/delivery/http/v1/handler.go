@@ -8,14 +8,14 @@ import (
 )
 
 type Handler struct {
-	services     service.ServiceManager
-	logger *slog.Logger
+	services service.ServiceManager
+	logger   *slog.Logger
 }
 
-func NewHandler(services service.ServiceManager, logger *slog.Logger) *Handler {
+func NewV1Handler(services service.ServiceManager, logger *slog.Logger) *Handler {
 	return &Handler{
-		services:     services,
-		logger: logger,
+		services: services,
+		logger:   logger,
 	}
 }
 func (h *Handler) Init(api *gin.RouterGroup) {
@@ -23,19 +23,16 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 	{
 		h.initSongsRoutes(v1)
 	}
-	v2 := api.Group("/v2")
-	{
-		h.initSongsRoutes(v2)
-	}
+
 }
 
-func (h *Handler) initSongsRoutes(api *gin.RouterGroup){
+func (h *Handler) initSongsRoutes(api *gin.RouterGroup) {
 	songsGroup := api.Group("/songs")
-  {
-      songsGroup.GET("/", h.getSongs)
-			songsGroup.PUT("/", h.updateSong)
-			songsGroup.POST("/", h.createSong)
-			songsGroup.GET("/text", h.getSongText)
-			songsGroup.DELETE("/", h.deleteSong)
-  }
+	{
+		songsGroup.GET("/", h.getSongs)
+		songsGroup.PUT("/:id", h.updateSong)
+		songsGroup.POST("/", h.createSong)
+		songsGroup.GET("/text", h.getSongText)
+		songsGroup.DELETE("/", h.deleteSong)
+	}
 }

@@ -10,7 +10,7 @@ import (
 
 const (
 	EnvLocal = "local"
-	EnvProd ="prod"
+	EnvProd  = "prod"
 )
 
 type Config struct {
@@ -18,6 +18,7 @@ type Config struct {
 	DatabaseConndection DatabaseConnection `envPrefix:"DB_"`
 	HTTPConfig          HTTPServer         `envPrefix:"HTTP_"`
 	MigrationsPath      string             `env:"MIGRATIONS_PATH" envDefault:"../../migrations"`
+	ExternalAPIBaseURL  string             `env:"EXTERNAL_API_BASE_URL"`
 }
 
 type DatabaseConnection struct {

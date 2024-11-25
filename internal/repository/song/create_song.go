@@ -10,7 +10,7 @@ import (
 	"github.com/acronix0/song-libary-api/internal/dto"
 )
 
-func (r *SongRepo) Create(ctx context.Context, song dto.SongDTO) (int, error) {
+func (r *SongRepo) Create(ctx context.Context, song dto.CreateSongDTO) (int, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, fmt.Errorf("failed to start transaction: %w", err)
@@ -35,14 +35,14 @@ func (r *SongRepo) Create(ctx context.Context, song dto.SongDTO) (int, error) {
 
 	return songID, nil
 }
-func (r *SongRepo) findOrCreateGroup(ctx context.Context, tx *sql.Tx, groupName *string) (int, error) {
-	if groupName == nil || *groupName == "" {
+func (r *SongRepo) findOrCreateGroup(ctx context.Context, tx *sql.Tx, groupName string) (int, error) {
+	if groupName == "" {
 		return 0, fmt.Errorf("group name is required")
 	}
 
 	var groupID int
 	queryFindGroup := `SELECT id FROM groups WHERE name = $1`
-	err := tx.QueryRowContext(ctx, queryFindGroup, *groupName).Scan(&groupID)
+	err := tx.QueryRowContext(ctx, queryFindGroup, groupName).Scan(&groupID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -51,7 +51,7 @@ func (r *SongRepo) findOrCreateGroup(ctx context.Context, tx *sql.Tx, groupName 
 				VALUES ($1, $2, $3)
 				RETURNING id
 			`
-			err = tx.QueryRowContext(ctx, queryCreateGroup, *groupName, time.Now(), time.Now()).Scan(&groupID)
+			err = tx.QueryRowContext(ctx, queryCreateGroup, groupName, time.Now(), time.Now()).Scan(&groupID)
 			if err != nil {
 				return 0, fmt.Errorf("failed to create group: %w", err)
 			}
@@ -63,15 +63,15 @@ func (r *SongRepo) findOrCreateGroup(ctx context.Context, tx *sql.Tx, groupName 
 	return groupID, nil
 }
 
-func (r *SongRepo) insertSong(ctx context.Context, tx *sql.Tx, song dto.SongDTO, groupID int) (int, error) {
+func (r *SongRepo) insertSong(ctx context.Context, tx *sql.Tx, song dto.CreateSongDTO, groupID int) (int, error) {
 	query := `INSERT INTO songs (group_id`
-	values := []interface{}{groupID} 
-	placeholders := []string{"$1"}   
+	values := []interface{}{groupID}
+	placeholders := []string{"$1"}
 	argCounter := 2 //group_id is 1
 
-	if song.Song != nil {
+	if song.Song != "" {
 		query += `, title`
-		values = append(values, *song.Song)
+		values = append(values, song.Song)
 		placeholders = append(placeholders, fmt.Sprintf("$%d", argCounter))
 		argCounter++
 	}
@@ -86,13 +86,6 @@ func (r *SongRepo) insertSong(ctx context.Context, tx *sql.Tx, song dto.SongDTO,
 	if song.ReleaseDate != nil {
 		query += `, release_date`
 		values = append(values, *song.ReleaseDate)
-		placeholders = append(placeholders, fmt.Sprintf("$%d", argCounter))
-		argCounter++
-	}
-
-	if song.Text != nil {
-		query += `, text`
-		values = append(values, *song.Text)
 		placeholders = append(placeholders, fmt.Sprintf("$%d", argCounter))
 		argCounter++
 	}

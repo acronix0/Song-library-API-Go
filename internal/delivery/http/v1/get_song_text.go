@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"database/sql"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -32,27 +33,27 @@ func (h *Handler) getSongText(c *gin.Context) {
 	songID, err := strconv.Atoi(c.Query("song_id"))
 	if err != nil || songID <= 0 {
 		newResponse(c, http.StatusBadRequest, "Invalid song_id parameter")
-		logger.Error("Invalid song_id parameter", slog.String("error", err.Error()))
+		logger.Error("Invalid song_id parameter")
 		return
 	}
 
 	skip, err := strconv.Atoi(c.DefaultQuery("skip", "0"))
 	if err != nil || skip < 0 {
 		newResponse(c, http.StatusBadRequest, "Invalid skip parameter")
-		logger.Error("Invalid skip parameter", slog.String("error", err.Error()))
+		logger.Error("Invalid skip parameter")
 		return
 	}
 
 	take, err := strconv.Atoi(c.DefaultQuery("take", "10"))
 	if err != nil || take <= 0 {
 		newResponse(c, http.StatusBadRequest, "Invalid take parameter")
-		logger.Error("Invalid take parameter", slog.String("error", err.Error()))
+		logger.Error("Invalid take parameter")
 		return
 	}
 
 	songText, err := h.services.Library().GetSongText(c.Request.Context(), songID, skip, take)
 	if err != nil {
-		if errors.Is(err, ErrNotFound) {
+		if errors.Is(err, sql.ErrNoRows) {
 			newResponse(c, http.StatusNotFound, "Song text not found")
 			logger.Error("Song text not found", slog.String("error", err.Error()))
 			return
@@ -62,6 +63,6 @@ func (h *Handler) getSongText(c *gin.Context) {
 		logger.Error("Failed to fetch song text", slog.String("error", err.Error()))
 		return
 	}
-
+	logger.Debug("Song text fetch successfully")
 	c.JSON(http.StatusOK, gin.H{"song_text": songText})
 }

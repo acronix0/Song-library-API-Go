@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	_"github.com/acronix0/song-libary-api/internal/dto"
+	_ "github.com/acronix0/song-libary-api/internal/dto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Param skip query int true "Number of records to skip" default(0)
 // @Param take query int true "Number of records to fetch" default(10)
-// @Success 200 {array} dto.SongDTO
+// @Success 200 {array} dto.ResponseSongDTO
 // @Failure 400 {object} Response "Invalid query parameters"
 // @Failure 500 {object} Response "Internal server error"
 // @Router /songs [get]
@@ -26,27 +26,26 @@ func (h *Handler) getSongs(c *gin.Context) {
 	logger := h.logger.With(
 		slog.String("op", op),
 	)
-  skip, err := strconv.Atoi(c.DefaultQuery("skip", "0"))
-  if err != nil || skip < 0 {
-      newResponse(c, http.StatusBadRequest, "Invalid skip parameter")
-			logger.Error("Invalid skip parameter")
-      return
-  }
+	skip, err := strconv.Atoi(c.DefaultQuery("skip", "0"))
+	if err != nil || skip < 0 {
+		newResponse(c, http.StatusBadRequest, "Invalid skip parameter")
+		logger.Debug("Invalid skip parameter", err)
+		return
+	}
 
-  take, err := strconv.Atoi(c.DefaultQuery("take", "10"))
-  if err != nil || take <= 0 {
-      newResponse(c, http.StatusBadRequest, "Invalid take parameter")
-			
-			logger.Error("Invalid take parameter")
-      return
-  }
+	take, err := strconv.Atoi(c.DefaultQuery("take", "10"))
+	if err != nil || take <= 0 {
+		newResponse(c, http.StatusBadRequest, "Invalid take parameter")
+		logger.Error("Failed to get songs")
+		return
+	}
 
-  songs, err := h.services.Library().GetSongs(c.Request.Context(), skip, take)
-  if err != nil {
-      newResponse(c, http.StatusInternalServerError, "Failed to fetch songs")
-			logger.Error("Failed to fetch songs")
-      return
-  }
-
-  c.JSON(http.StatusOK, songs)
+	songs, err := h.services.Library().GetSongs(c.Request.Context(), skip, take)
+	if err != nil {
+		newResponse(c, http.StatusInternalServerError, "Failed to fetch songs")
+		logger.Error("Failed to get songs", slog.String("error", err.Error()))
+		return
+	}
+	logger.Debug("Song fetch successfully")
+	c.JSON(http.StatusOK, songs)
 }

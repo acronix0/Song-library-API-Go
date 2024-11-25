@@ -2,12 +2,13 @@ package song
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/acronix0/song-libary-api/internal/dto"
 )
 
-func (r *SongRepo) Get(ctx context.Context, skip, take int) ([]dto.SongDTO, error) {
+func (r *SongRepo) Get(ctx context.Context, skip, take int) ([]dto.ResponseSongDTO, error) {
 	query := `
 		SELECT 
 			s.id AS song_id,
@@ -17,9 +18,11 @@ func (r *SongRepo) Get(ctx context.Context, skip, take int) ([]dto.SongDTO, erro
 			s.release_date,
 			s.created_at,
 			s.updated_at,
-			s.text
+			COALESCE(STRING_AGG(sl.text, E'\n' ORDER BY sl.verse_number), '') AS lyrics
 		FROM songs s
 		LEFT JOIN groups g ON s.group_id = g.id
+		LEFT JOIN song_lyrics sl ON sl.song_id = s.id
+		GROUP BY s.id, g.name
 		ORDER BY s.created_at DESC
 		LIMIT $1 OFFSET $2
 	`
@@ -30,9 +33,10 @@ func (r *SongRepo) Get(ctx context.Context, skip, take int) ([]dto.SongDTO, erro
 	}
 	defer rows.Close()
 
-	var songs []dto.SongDTO
+	var songs []dto.ResponseSongDTO
 	for rows.Next() {
-		var song dto.SongDTO
+		var song dto.ResponseSongDTO
+
 		err := rows.Scan(
 			&song.SongID,
 			&song.Song,
@@ -52,6 +56,8 @@ func (r *SongRepo) Get(ctx context.Context, skip, take int) ([]dto.SongDTO, erro
 	if rows.Err() != nil {
 		return nil, fmt.Errorf("error iterating over rows: %w", rows.Err())
 	}
-
+	if songs == nil {
+		return []dto.ResponseSongDTO{}, sql.ErrNoRows
+	}
 	return songs, nil
 }

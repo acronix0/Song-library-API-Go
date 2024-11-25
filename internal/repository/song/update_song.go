@@ -10,28 +10,28 @@ import (
 	"github.com/acronix0/song-libary-api/internal/dto"
 )
 
-func (r *SongRepo) Update(ctx context.Context, song dto.SongDTO) (dto.SongDTO, error) {
+func (r *SongRepo) Update(ctx context.Context, song dto.UpdateSongDTO) (dto.ResponseSongDTO, error) {
 	if song.SongID == 0 {
-		return dto.SongDTO{}, fmt.Errorf("song ID is required")
+		return dto.ResponseSongDTO{}, fmt.Errorf("song ID is required")
 	}
 
 	var groupID *int
 	if song.Group != nil {
 		id, err := r.findGroupID(ctx, *song.Group)
 		if err != nil {
-			return dto.SongDTO{}, err
+			return dto.ResponseSongDTO{}, err
 		}
 		groupID = &id
 	}
 
 	query, values, err := r.buildUpdateQuery(song, groupID)
 	if err != nil {
-		return dto.SongDTO{}, err
+		return dto.ResponseSongDTO{}, err
 	}
 
 	updatedSong, err := r.executeUpdateQuery(ctx, query, values)
 	if err != nil {
-		return dto.SongDTO{}, err
+		return dto.ResponseSongDTO{}, err
 	}
 
 	return updatedSong, nil
@@ -52,7 +52,7 @@ func (r *SongRepo) findGroupID(ctx context.Context, groupName string) (int, erro
 	return groupID, nil
 }
 
-func (r *SongRepo) buildUpdateQuery(song dto.SongDTO, groupID *int) (string, []interface{}, error) {
+func (r *SongRepo) buildUpdateQuery(song dto.UpdateSongDTO, groupID *int) (string, []interface{}, error) {
 	var updates []string
 	var values []interface{}
 	argCounter := 1
@@ -81,12 +81,6 @@ func (r *SongRepo) buildUpdateQuery(song dto.SongDTO, groupID *int) (string, []i
 		argCounter++
 	}
 
-	if song.Text != nil {
-		updates = append(updates, fmt.Sprintf("text = $%d", argCounter))
-		values = append(values, *song.Text)
-		argCounter++
-	}
-
 	if len(updates) == 0 {
 		return "", nil, fmt.Errorf("no fields to update")
 	}
@@ -101,16 +95,16 @@ func (r *SongRepo) buildUpdateQuery(song dto.SongDTO, groupID *int) (string, []i
 		SET %s
 		FROM groups
 		WHERE songs.group_id = groups.id AND songs.id = $%d
-		RETURNING songs.id, songs.title, groups.name, songs.link, songs.release_date, songs.created_at, songs.updated_at, songs.text
+		RETURNING songs.id, songs.title, groups.name, songs.link, songs.release_date, songs.created_at, songs.updated_at
 	`, strings.Join(updates, ", "), argCounter)
 
 	return query, values, nil
 }
 
-func (r *SongRepo) executeUpdateQuery(ctx context.Context, query string, values []interface{}) (dto.SongDTO, error) {
+func (r *SongRepo) executeUpdateQuery(ctx context.Context, query string, values []interface{}) (dto.ResponseSongDTO, error) {
 	row := r.db.QueryRowContext(ctx, query, values...)
 
-	var updatedSong dto.SongDTO
+	var updatedSong dto.ResponseSongDTO
 	err := row.Scan(
 		&updatedSong.SongID,
 		&updatedSong.Song,
@@ -119,13 +113,12 @@ func (r *SongRepo) executeUpdateQuery(ctx context.Context, query string, values 
 		&updatedSong.ReleaseDate,
 		&updatedSong.CreatedAt,
 		&updatedSong.UpdatedAt,
-		&updatedSong.Text,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return dto.SongDTO{}, fmt.Errorf("song not found")
+			return dto.ResponseSongDTO{}, fmt.Errorf("song not found")
 		}
-		return dto.SongDTO{}, fmt.Errorf("failed to update song: %w", err)
+		return dto.ResponseSongDTO{}, fmt.Errorf("failed to update song: %w", err)
 	}
 
 	return updatedSong, nil
