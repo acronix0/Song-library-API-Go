@@ -29,7 +29,7 @@ func (h *Handler) getSongs(c *gin.Context) {
 	skip, err := strconv.Atoi(c.DefaultQuery("skip", "0"))
 	if err != nil || skip < 0 {
 		newResponse(c, http.StatusBadRequest, "Invalid skip parameter")
-		logger.Debug("Invalid skip parameter", err)
+		logger.Debug("Invalid skip parameter")
 		return
 	}
 
